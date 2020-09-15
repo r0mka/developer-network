@@ -10,8 +10,7 @@ const checkObjectId = require('../../middleware/checkObjectId');
 
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
-// TODO:
-// const Post = require('../../models/Post');
+const Post = require('../../models/Post');
 
 // @route    GET api/profile/me
 // @desc     Get current users profile
@@ -19,7 +18,7 @@ const User = require('../../models/User');
 router.get('/me', auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({
-      user: req.user.id,
+      user: req.user.id
     }).populate('user', ['name', 'avatar']);
 
     if (!profile) {
@@ -42,8 +41,8 @@ router.post(
     auth,
     [
       check('status', 'Status is required').not().isEmpty(),
-      check('skills', 'Skills is required').not().isEmpty(),
-    ],
+      check('skills', 'Skills is required').not().isEmpty()
+    ]
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -62,23 +61,20 @@ router.post(
       twitter,
       instagram,
       linkedin,
-      facebook,
+      facebook
     } = req.body;
 
     const profileFields = {
       user: req.user.id,
       company,
       location,
-      website:
-        website && website !== ''
-          ? normalize(website, { forceHttps: true })
-          : '',
+      website: website && website !== '' ? normalize(website, { forceHttps: true }) : '',
       bio,
       skills: Array.isArray(skills)
         ? skills
         : skills.split(',').map((skill) => ' ' + skill.trim()),
       status,
-      githubusername,
+      githubusername
     };
 
     // Build social object and add to profileFields
@@ -95,7 +91,7 @@ router.post(
       let profile = await Profile.findOneAndUpdate(
         { user: req.user.id },
         { $set: profileFields },
-        { new: true, upsert: true }
+        { new: true, upsert: true, setDefaultsOnInsert: true }
       );
       res.json(profile);
     } catch (err) {
@@ -127,7 +123,7 @@ router.get(
   async ({ params: { user_id } }, res) => {
     try {
       const profile = await Profile.findOne({
-        user: user_id,
+        user: user_id
       }).populate('user', ['name', 'avatar']);
 
       if (!profile) return res.status(400).json({ msg: 'Profile not found' });
@@ -135,9 +131,6 @@ router.get(
       return res.json(profile);
     } catch (err) {
       console.error(err.message);
-      if (err.kind == 'ObjectId') {
-        return res.status(400).json({ msg: 'Profile not found' });
-      }
       return res.status(500).json({ msg: 'Server error' });
     }
   }
@@ -148,8 +141,8 @@ router.get(
 // @access   Private
 router.delete('/', auth, async (req, res) => {
   try {
-    // Remove user posts TODO:
-    // await Post.deleteMany({ user: req.user.id });
+    // Remove user posts
+    await Post.deleteMany({ user: req.user.id });
     // Remove profile
     await Profile.findOneAndRemove({ user: req.user.id });
     // Remove user
@@ -175,8 +168,8 @@ router.put(
       check('from', 'From date is required and needs to be from the past')
         .not()
         .isEmpty()
-        .custom((value, { req }) => (req.body.to ? value < req.body.to : true)),
-    ],
+        .custom((value, { req }) => (req.body.to ? value < req.body.to : true))
+    ]
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -191,7 +184,7 @@ router.put(
       from,
       to,
       current,
-      description,
+      description
     } = req.body;
 
     const newExp = {
@@ -201,7 +194,7 @@ router.put(
       from,
       to,
       current,
-      description,
+      description
     };
 
     try {
@@ -253,8 +246,8 @@ router.put(
       check('from', 'From date is required and needs to be from the past')
         .not()
         .isEmpty()
-        .custom((value, { req }) => (req.body.to ? value < req.body.to : true)),
-    ],
+        .custom((value, { req }) => (req.body.to ? value < req.body.to : true))
+    ]
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -269,7 +262,7 @@ router.put(
       from,
       to,
       current,
-      description,
+      description
     } = req.body;
 
     const newEdu = {
@@ -279,7 +272,7 @@ router.put(
       from,
       to,
       current,
-      description,
+      description
     };
 
     try {
@@ -325,7 +318,7 @@ router.get('/github/:username', async (req, res) => {
     );
     const headers = {
       'user-agent': 'node.js',
-      Authorization: `token ${config.get('githubToken')}`,
+      Authorization: `token ${config.get('githubToken')}`
     };
 
     const gitHubResponse = await axios.get(uri, { headers });
