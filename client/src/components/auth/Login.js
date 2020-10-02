@@ -7,7 +7,7 @@ const Login = () => {
     email: '',
   });
 
-  const { email, password, password2 } = formData;
+  const { email, password } = formData;
 
   const handleChange = (e) =>
     setformData({
